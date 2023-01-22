@@ -1,0 +1,17 @@
+{
+  "name": "cloud-cost-tag-checker",
+  "version": "0.0.0",
+  "description": "Find cloud resources missing cost center, owner or environment tags.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/edilec/cloud-cost-tag-checker"
+  }
+}
