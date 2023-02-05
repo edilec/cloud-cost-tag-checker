@@ -6,7 +6,9 @@ const only=(x,keys)=>Object.keys(x).every(k=>keys.includes(k));
 const cmp=(a,b)=>a<b?-1:a>b?1:0;
 const id=x=>typeof x==='string'&&x.length>0&&x.length<=256&&!/[\u0000-\u001f\u007f-\u009f]/u.test(x);
 const provider=x=>['aws','azure','gcp'].includes(x);
-const clean=x=>typeof x==='string'&&x.trim().length>0&&x.length<=256&&!/[\u0000-\u001f\u007f-\u009f]/u.test(x);
+const unsafeDisplay=/[\u0000-\u001f\u007f-\u009f\u2028\u2029\p{Cf}]/u;
+const clean=x=>typeof x==='string'&&x.trim().length>0&&x.length<=256&&!unsafeDisplay.test(x);
+const visible=x=>x.replace(/[\u0000-\u001f\u007f-\u009f\u2028\u2029\p{Cf}]/gu,'').trim().length>0;
 const instant=x=>typeof x==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/.test(x)&&Number.isFinite(Date.parse(x))&&new Date(x).toISOString().slice(0,19)===x.slice(0,19);
 function depth(x){const stack=[[x,0,new Set()]];while(stack.length){const [v,n,a]=stack.pop();if(n>LIMITS.depth)return n;if(v&&typeof v==='object'){if(a.has(v))return LIMITS.depth+1;const next=new Set(a);next.add(v);for(const c of Object.values(v))stack.push([c,n+1,next]);}}return 0;}
 export function validPolicy(p){
@@ -45,7 +47,7 @@ export function checkCostTags(inventory,policy,{now=Date.now,deadline=now()+LIMI
     if(ambiguous){add('tag-ambiguous',`${at}/tags`,'Tag names collide under provider case rules.');continue;}
     for(const required of policy.requiredTags){const key=r.provider==='azure'?required.key.toLowerCase():required.key;const value=normalized.get(key),ptr=`${at}/tags`;
       if(value===undefined)add('required-tag-missing',ptr,'Required cost allocation tag is missing.');
-      else if(required.key==='owner'&&!value.trim())add('blank-owner',ptr,'Owner tag is blank.');
+      else if(required.key==='owner'&&!visible(value))add('blank-owner',ptr,'Owner tag is blank.');
       else if(!required.allowedValues.includes(value))add('tag-value-not-allowed',ptr,'Required tag value is outside policy allowlist.');
     }
   }

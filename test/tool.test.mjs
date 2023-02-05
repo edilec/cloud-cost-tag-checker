@@ -102,3 +102,16 @@ test('canaries in identifiers, values and exception reasons are not reported', (
   assert.equal(excluded.status,'fail');
   assert.equal(JSON.stringify(excluded).includes(canary),false);
 });
+
+test('visually blank format-only owner is never approved, while ordinary owner still passes', () => {
+  assert.equal(check(inventory).status,'pass');
+  const invisible='\u200e';
+  const altered={...inventory,resources:[{...resource,tags:{...resource.tags,owner:invisible}}]};
+  const result=check(altered);
+  assert.equal(result.status,'fail');
+  assert.ok(result.findings.some(f=>f.ruleId==='blank-owner'));
+  assert.equal(JSON.stringify(result).includes(invisible),false);
+  const unsafePolicy={...policy,requiredTags:policy.requiredTags.map(t=>t.key==='owner'?{...t,allowedValues:[invisible]}:t)};
+  assert.equal(checkCostTags(altered,unsafePolicy).status,'incomplete');
+  assert.equal(validPolicy(unsafePolicy),false);
+});
