@@ -1,0 +1,1 @@
+{"schemaVersion":"1","complete":true,"resources":[{"provider":"aws","resourceId":"synthetic-r1","tags":{"cost-center":"CC-1","owner":"team-a","environment":"test"}},{"provider":"azure","resourceId":"synthetic-r2","tags":{"COST-CENTER":"CC-1","Owner":"team-a","ENVIRONMENT":"test"}}]}
